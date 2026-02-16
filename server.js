@@ -19,14 +19,20 @@ app.post('/obfuscate', (req, res) => {
     }
 
     const id = Date.now();
-    const inputPath = path.join(__dirname, `temp_${id}.lua`);
-    const expectedOutputPath = path.join(__dirname, `temp_${id} (Obfuscated).lua`);
+    const inputFilename = `temp_${id}.lua`;
+    const outputFilename = `temp_${id} (Obfuscated).lua`;
+    
+    const inputPath = path.join(__dirname, inputFilename);
+    const expectedOutputPath = path.join(__dirname, outputFilename);
 
     fs.writeFileSync(inputPath, luaCode);
 
-    const command = `lua5.1 Prometheus/cli.lua --preset Medium --LuaVersion LuaU "${inputPath}"`;
+    const command = `lua5.1 Prometheus/cli.lua "./${inputFilename}" --preset Medium --LuaVersion LuaU`;
+
+    console.log(`Executing: ${command}`);
 
     exec(command, (error, stdout, stderr) => {
+        
         if (fs.existsSync(expectedOutputPath)) {
             let obfuscatedCode = fs.readFileSync(expectedOutputPath, 'utf8');
 
@@ -36,16 +42,19 @@ app.post('/obfuscate', (req, res) => {
             try {
                 fs.unlinkSync(inputPath);
                 fs.unlinkSync(expectedOutputPath);
-            } catch (err) {}
+            } catch (err) { console.error("Cleanup warn:", err.message); }
 
             res.json({ result: obfuscatedCode.trim() });
 
         } else {
+            console.error("--- LUA ERROR ---");
+            console.error(stderr || stdout);
+            
             if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
             
             res.status(500).json({ 
-                error: "Obfuscation failed", 
-                details: stderr || stdout 
+                error: "Obfuscation Failed", 
+                details: (stderr || stdout).trim()
             });
         }
     });
