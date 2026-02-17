@@ -27,7 +27,8 @@ app.post('/obfuscate', (req, res) => {
 
     fs.writeFileSync(inputPath, luaCode);
 
-    const command = `lua5.1 Prometheus/cli.lua "./${inputFilename}" --preset Medium --LuaVersion LuaU`;
+    -- fixed this command problem cuz it wont obfuscate
+    const command = `lua5.1 Prometheus/cli.lua "./${inputFilename}" --preset Medium`;
 
     console.log(`Executing: ${command}`);
 
