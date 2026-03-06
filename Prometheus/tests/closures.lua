@@ -1,9 +1,13 @@
+-- Demonstrates closure capture inside a loop
+
 local arr = {}
+
 for i = 1, 100 do
-	local x;
-	x = (x or 1) + i;
+	local x
+	x = (x or 1) + i
+
 	arr[i] = function()
-		return x;
+		return x
 	end
 end
 
