@@ -11,9 +11,9 @@ local RandomStrings = require("prometheus.randomStrings")
 local Parser = require("prometheus.parser")
 local Enums = require("prometheus.enums")
 local logger = require("logger")
-local visitast = require("prometheus.visitast");
+local visitast = require("prometheus.visitast")
 local util     = require("prometheus.util")
-local AstKind = Ast.AstKind;
+local AstKind = Ast.AstKind
 
 local EncryptStrings = Step:extend()
 EncryptStrings.Description = "This Step will encrypt strings within your Program."
@@ -23,14 +23,13 @@ EncryptStrings.SettingsDescriptor = {}
 
 function EncryptStrings:init(settings) end
 
+function EncryptStrings:CreateEncryptionService()
+	local usedSeeds = {}
 
-function EncryptStrings:CreateEncrypionService()
-	local usedSeeds = {};
-
-	local secret_key_6 = math.random(0, 63) -- 6-bit  arbitrary integer (0..63)
-	local secret_key_7 = math.random(0, 127) -- 7-bit  arbitrary integer (0..127)
+	local secret_key_6 = math.random(0, 63) -- 6-bit arbitrary integer (0..63)
+	local secret_key_7 = math.random(0, 127) -- 7-bit arbitrary integer (0..127)
 	local secret_key_44 = math.random(0, 17592186044415) -- 44-bit arbitrary integer (0..17592186044415)
-	local secret_key_8 = math.random(0, 255); -- 8-bit  arbitrary integer (0..255)
+	local secret_key_8 = math.random(0, 255) -- 8-bit arbitrary integer (0..255)
 
 	local floor = math.floor
 
@@ -57,12 +56,12 @@ function EncryptStrings:CreateEncrypionService()
 	end
 
 	local function gen_seed()
-		local seed;
+		local seed
 		repeat
-			seed = math.random(0, 35184372088832);
-		until not usedSeeds[seed];
-		usedSeeds[seed] = true;
-		return seed;
+			seed = math.random(0, 35184372088832)
+		until not usedSeeds[seed]
+		usedSeeds[seed] = true
+		return seed
 	end
 
 	local function get_random_32()
@@ -86,47 +85,45 @@ function EncryptStrings:CreateEncrypionService()
 			local b4 = (high_16 - b3) / 256
 			prev_values = { b1, b2, b3, b4 }
 		end
-		--print(unpack(prev_values))
 		return table.remove(prev_values)
 	end
 
 	local function encrypt(str)
-		local seed = gen_seed();
+		local seed = gen_seed()
 		set_seed(seed)
 		local len = string.len(str)
 		local out = {}
-		local prevVal = secret_key_8;
+		local prevVal = secret_key_8
 		for i = 1, len do
-			local byte = string.byte(str, i);
-			out[i] = string.char((byte - (get_next_pseudo_random_byte() + prevVal)) % 256);
-			prevVal = byte;
+			local byte = string.byte(str, i)
+			out[i] = string.char((byte - (get_next_pseudo_random_byte() + prevVal)) % 256)
+			prevVal = byte
 		end
-		return table.concat(out), seed;
+		return table.concat(out), seed
 	end
 
-    local function genCode()
-        local code = [[
+	local function genCode()
+		local code = [[
 do
 	local floor = math.floor
-	local random = math.random;
-	local remove = table.remove;
-	local char = string.char;
+	local random = math.random
+	local remove = table.remove
+	local concat = table.concat
+	local char = string.char
 	local state_45 = 0
 	local state_8 = 2
-	local digits = {}
-	local charmap = {};
-	local i = 0;
+	local charmap = {}
 
-	local nums = {};
+	local nums = {}
 	for i = 1, 256 do
-		nums[i] = i;
+		nums[i] = i
 	end
 
 	repeat
-		local idx = random(1, #nums);
-		local n = remove(nums, idx);
-		charmap[n] = char(n - 1);
-	until #nums == 0;
+		local idx = random(1, #nums)
+		local n = remove(nums, idx)
+		charmap[n] = char(n - 1)
+	until #nums == 0
 
 	local prev_values = {}
 	local function get_next_pseudo_random_byte()
@@ -146,93 +143,99 @@ do
 			local b4 = (high_16 - b3) / 256
 			prev_values = { b1, b2, b3, b4 }
 		end
-		return table.remove(prev_values)
+		return remove(prev_values)
 	end
 
-	local realStrings = {};
+	local realStrings = {}
 	STRINGS = setmetatable({}, {
-		__index = realStrings;
-		__metatable = nil;
-	});
-  	function DECRYPT(str, seed)
-		local realStringsLocal = realStrings;
-		if(realStringsLocal[seed]) then else
-			prev_values = {};
-			local chars = charmap;
+		__index = realStrings,
+		__metatable = nil,
+	})
+	
+	function DECRYPT(str, seed)
+		local realStringsLocal = realStrings
+		if not realStringsLocal[seed] then
+			prev_values = {}
+			local chars = charmap
 			state_45 = seed % 35184372088832
 			state_8 = seed % 255 + 2
-			local len = string.len(str);
-			realStringsLocal[seed] = "";
-			local prevVal = ]] .. tostring(secret_key_8) .. [[;
-			for i=1, len do
+			local len = string.len(str)
+			
+			-- Optmized String Decoding Buffer
+			local buffer = {}
+			local prevVal = ]] .. tostring(secret_key_8) .. [[
+			
+			for i = 1, len do
 				prevVal = (string.byte(str, i) + get_next_pseudo_random_byte() + prevVal) % 256
-				realStringsLocal[seed] = realStringsLocal[seed] .. chars[prevVal + 1];
+				buffer[i] = chars[prevVal + 1]
 			end
+			
+			realStringsLocal[seed] = concat(buffer)
 		end
-		return seed;
+		return seed
 	end
 end]]
 
-		return code;
-    end
+		return code
+	end
 
-    return {
-        encrypt = encrypt,
-        param_mul_45 = param_mul_45,
-        param_mul_8 = param_mul_8,
-        param_add_45 = param_add_45,
+	return {
+		encrypt = encrypt,
+		param_mul_45 = param_mul_45,
+		param_mul_8 = param_mul_8,
+		param_add_45 = param_add_45,
 		secret_key_8 = secret_key_8,
-        genCode = genCode,
-    }
+		genCode = genCode,
+	}
 end
 
 function EncryptStrings:apply(ast, pipeline)
-    local Encryptor = self:CreateEncrypionService();
+	local Encryptor = self:CreateEncryptionService()
 
-	local code = Encryptor.genCode();
-	local newAst = Parser:new({ LuaVersion = Enums.LuaVersion.Lua51 }):parse(code);
-	local doStat = newAst.body.statements[1];
+	local code = Encryptor.genCode()
+	local newAst = Parser:new({ LuaVersion = Enums.LuaVersion.Lua51 }):parse(code)
+	local doStat = newAst.body.statements[1]
 
-	local scope = ast.body.scope;
-	local decryptVar = scope:addVariable();
-	local stringsVar = scope:addVariable();
+	local scope = ast.body.scope
+	local decryptVar = scope:addVariable()
+	local stringsVar = scope:addVariable()
 	
-	doStat.body.scope:setParent(ast.body.scope);
+	doStat.body.scope:setParent(ast.body.scope)
 
 	visitast(newAst, nil, function(node, data)
-		if(node.kind == AstKind.FunctionDeclaration) then
-			if(node.scope:getVariableName(node.id) == "DECRYPT") then
-				data.scope:removeReferenceToHigherScope(node.scope, node.id);
-				data.scope:addReferenceToHigherScope(scope, decryptVar);
-				node.scope = scope;
-				node.id    = decryptVar;
+		if node.kind == AstKind.FunctionDeclaration then
+			if node.scope:getVariableName(node.id) == "DECRYPT" then
+				data.scope:removeReferenceToHigherScope(node.scope, node.id)
+				data.scope:addReferenceToHigherScope(scope, decryptVar)
+				node.scope = scope
+				node.id    = decryptVar
 			end
 		end
-		if(node.kind == AstKind.AssignmentVariable or node.kind == AstKind.VariableExpression) then
-			if(node.scope:getVariableName(node.id) == "STRINGS") then
-				data.scope:removeReferenceToHigherScope(node.scope, node.id);
-				data.scope:addReferenceToHigherScope(scope, stringsVar);
-				node.scope = scope;
-				node.id    = stringsVar;
+		if node.kind == AstKind.AssignmentVariable or node.kind == AstKind.VariableExpression then
+			if node.scope:getVariableName(node.id) == "STRINGS" then
+				data.scope:removeReferenceToHigherScope(node.scope, node.id)
+				data.scope:addReferenceToHigherScope(scope, stringsVar)
+				node.scope = scope
+				node.id    = stringsVar
 			end
 		end
 	end)
 
 	visitast(ast, nil, function(node, data)
-		if(node.kind == AstKind.StringExpression) then
-			data.scope:addReferenceToHigherScope(scope, stringsVar);
-			data.scope:addReferenceToHigherScope(scope, decryptVar);
-			local encrypted, seed = Encryptor.encrypt(node.value);
+		if node.kind == AstKind.StringExpression then
+			data.scope:addReferenceToHigherScope(scope, stringsVar)
+			data.scope:addReferenceToHigherScope(scope, decryptVar)
+			local encrypted, seed = Encryptor.encrypt(node.value)
 			return Ast.IndexExpression(Ast.VariableExpression(scope, stringsVar), Ast.FunctionCallExpression(Ast.VariableExpression(scope, decryptVar), {
 				Ast.StringExpression(encrypted), Ast.NumberExpression(seed),
-			}));
+			}))
 		end
 	end)
 
-
 	-- Insert to Main Ast
-	table.insert(ast.body.statements, 1, doStat);
-	table.insert(ast.body.statements, 1, Ast.LocalVariableDeclaration(scope, util.shuffle{ decryptVar, stringsVar }, {}));
+	table.insert(ast.body.statements, 1, doStat)
+	table.insert(ast.body.statements, 1, Ast.LocalVariableDeclaration(scope, util.shuffle{ decryptVar, stringsVar }, {}))
+	
 	return ast
 end
 
