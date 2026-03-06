@@ -2,25 +2,30 @@
 --
 -- namegenerators/mangled.lua
 --
--- This Script provides a function for generation of mangled names
+-- This Script provides a function for the generation of mangled names
 
+local util = require("prometheus.util")
+local chararray = util.chararray
 
-local util = require("prometheus.util");
-local chararray = util.chararray;
+local VarDigits = chararray("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_")
+local VarStartDigits = chararray("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-local idGen = 0
-local VarDigits = chararray("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
-local VarStartDigits = chararray("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+-- Cache lengths globally since they are static in this generator
+local startLen = #VarStartDigits
+local digitsLen = #VarDigits
 
 return function(id, scope)
-	local name = ''
-	local d = id % #VarStartDigits
-	id = (id - d) / #VarStartDigits
-	name = name..VarStartDigits[d+1]
+	local d = id % startLen
+	id = (id - d) / startLen
+	
+	-- Initialize table with the starting character
+	local result = { VarStartDigits[d + 1] }
+	
 	while id > 0 do
-		local d = id % #VarDigits
-		id = (id - d) / #VarDigits
-		name = name..VarDigits[d+1]
+		d = id % digitsLen
+		id = (id - d) / digitsLen
+		result[#result + 1] = VarDigits[d + 1]
 	end
-	return name
+	
+	return table.concat(result)
 end
