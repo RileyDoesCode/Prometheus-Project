@@ -6,144 +6,164 @@ local Ast = {}
 
 local AstKind = {
 	-- Misc
-	TopNode = "TopNode";
-	Block = "Block";
+	TopNode = "TopNode",
+	Block = "Block",
 
 	-- Statements
-	ContinueStatement = "ContinueStatement";
-	BreakStatement = "BreakStatement";
-	DoStatement = "DoStatement";
-	WhileStatement = "WhileStatement";
-	ReturnStatement = "ReturnStatement";
-	RepeatStatement = "RepeatStatement";
-	ForInStatement = "ForInStatement";
-	ForStatement = "ForStatement";
-	IfStatement = "IfStatement";
-	FunctionDeclaration = "FunctionDeclaration";
-	LocalFunctionDeclaration = "LocalFunctionDeclaration";
-	LocalVariableDeclaration = "LocalVariableDeclaration";
-	FunctionCallStatement = "FunctionCallStatement";
-	PassSelfFunctionCallStatement = "PassSelfFunctionCallStatement";
-	AssignmentStatement = "AssignmentStatement";
+	ContinueStatement = "ContinueStatement",
+	BreakStatement = "BreakStatement",
+	DoStatement = "DoStatement",
+	WhileStatement = "WhileStatement",
+	ReturnStatement = "ReturnStatement",
+	RepeatStatement = "RepeatStatement",
+	ForInStatement = "ForInStatement",
+	ForStatement = "ForStatement",
+	IfStatement = "IfStatement",
+	FunctionDeclaration = "FunctionDeclaration",
+	LocalFunctionDeclaration = "LocalFunctionDeclaration",
+	LocalVariableDeclaration = "LocalVariableDeclaration",
+	FunctionCallStatement = "FunctionCallStatement",
+	PassSelfFunctionCallStatement = "PassSelfFunctionCallStatement",
+	AssignmentStatement = "AssignmentStatement",
 
 	-- LuaU Compound Statements
-	CompoundAddStatement = "CompoundAddStatement";
-	CompoundSubStatement = "CompoundSubStatement";
-	CompoundMulStatement = "CompoundMulStatement";
-	CompoundDivStatement = "CompoundDivStatement";
-	CompoundModStatement = "CompoundModStatement";
-	CompoundPowStatement = "CompoundPowStatement";
-	CompoundConcatStatement = "CompoundConcatStatement";
+	CompoundAddStatement = "CompoundAddStatement",
+	CompoundSubStatement = "CompoundSubStatement",
+	CompoundMulStatement = "CompoundMulStatement",
+	CompoundDivStatement = "CompoundDivStatement",
+	CompoundModStatement = "CompoundModStatement",
+	CompoundPowStatement = "CompoundPowStatement",
+	CompoundConcatStatement = "CompoundConcatStatement",
 
 	-- Assignment Index
-	AssignmentIndexing = "AssignmentIndexing";
-	AssignmentVariable = "AssignmentVariable";  
+	AssignmentIndexing = "AssignmentIndexing",
+	AssignmentVariable = "AssignmentVariable",  
 
 	-- Expression Nodes
-	BooleanExpression = "BooleanExpression";
-	NumberExpression = "NumberExpression";
-	StringExpression = "StringExpression";
-	NilExpression = "NilExpression";
-	VarargExpression = "VarargExpression";
-	OrExpression = "OrExpression";
-	AndExpression = "AndExpression";
-	LessThanExpression = "LessThanExpression";
-	GreaterThanExpression = "GreaterThanExpression";
-	LessThanOrEqualsExpression = "LessThanOrEqualsExpression";
-	GreaterThanOrEqualsExpression = "GreaterThanOrEqualsExpression";
-	NotEqualsExpression = "NotEqualsExpression";
-	EqualsExpression = "EqualsExpression";
-	StrCatExpression = "StrCatExpression";
-	AddExpression = "AddExpression";
-	SubExpression = "SubExpression";
-	MulExpression = "MulExpression";
-	DivExpression = "DivExpression";
-	ModExpression = "ModExpression";
-	NotExpression = "NotExpression";
-	LenExpression = "LenExpression";
-	NegateExpression = "NegateExpression";
-	PowExpression = "PowExpression";
-	IndexExpression = "IndexExpression";
-	FunctionCallExpression = "FunctionCallExpression";
-	PassSelfFunctionCallExpression = "PassSelfFunctionCallExpression";
-	VariableExpression = "VariableExpression";
-	FunctionLiteralExpression = "FunctionLiteralExpression";
-	TableConstructorExpression = "TableConstructorExpression";
+	BooleanExpression = "BooleanExpression",
+	NumberExpression = "NumberExpression",
+	StringExpression = "StringExpression",
+	NilExpression = "NilExpression",
+	VarargExpression = "VarargExpression",
+	OrExpression = "OrExpression",
+	AndExpression = "AndExpression",
+	LessThanExpression = "LessThanExpression",
+	GreaterThanExpression = "GreaterThanExpression",
+	LessThanOrEqualsExpression = "LessThanOrEqualsExpression",
+	GreaterThanOrEqualsExpression = "GreaterThanOrEqualsExpression",
+	NotEqualsExpression = "NotEqualsExpression",
+	EqualsExpression = "EqualsExpression",
+	StrCatExpression = "StrCatExpression",
+	AddExpression = "AddExpression",
+	SubExpression = "SubExpression",
+	MulExpression = "MulExpression",
+	DivExpression = "DivExpression",
+	ModExpression = "ModExpression",
+	NotExpression = "NotExpression",
+	LenExpression = "LenExpression",
+	NegateExpression = "NegateExpression",
+	PowExpression = "PowExpression",
+	IndexExpression = "IndexExpression",
+	FunctionCallExpression = "FunctionCallExpression",
+	PassSelfFunctionCallExpression = "PassSelfFunctionCallExpression",
+	VariableExpression = "VariableExpression",
+	FunctionLiteralExpression = "FunctionLiteralExpression",
+	TableConstructorExpression = "TableConstructorExpression",
 
 	-- Table Entry
-	TableEntry = "TableEntry";
-	KeyedTableEntry = "KeyedTableEntry";
+	TableEntry = "TableEntry",
+	KeyedTableEntry = "KeyedTableEntry",
 
 	-- Misc
-	NopStatement = "NopStatement";
-
-	IfElseExpression = "IfElseExpression";
+	NopStatement = "NopStatement",
+	IfElseExpression = "IfElseExpression",
 }
 
 local astKindExpressionLookup = {
-	[AstKind.BooleanExpression] = 0;
-	[AstKind.NumberExpression] = 0;
-	[AstKind.StringExpression] = 0;
-	[AstKind.NilExpression] = 0;
-	[AstKind.VarargExpression] = 0;
-	[AstKind.OrExpression] = 12;
-	[AstKind.AndExpression] = 11;
-	[AstKind.LessThanExpression] = 10;
-	[AstKind.GreaterThanExpression] = 10;
-	[AstKind.LessThanOrEqualsExpression] = 10;
-	[AstKind.GreaterThanOrEqualsExpression] = 10;
-	[AstKind.NotEqualsExpression] = 10;
-	[AstKind.EqualsExpression] = 10;
-	[AstKind.StrCatExpression] = 9;
-	[AstKind.AddExpression] = 8;
-	[AstKind.SubExpression] = 8;
-	[AstKind.MulExpression] = 7;
-	[AstKind.DivExpression] = 7;
-	[AstKind.ModExpression] = 7;
-	[AstKind.NotExpression] = 5;
-	[AstKind.LenExpression] = 5;
-	[AstKind.NegateExpression] = 5;
-	[AstKind.PowExpression] = 4;
-	[AstKind.IndexExpression] = 1;
-	[AstKind.AssignmentIndexing] = 1;
-	[AstKind.FunctionCallExpression] = 2;
-	[AstKind.PassSelfFunctionCallExpression] = 2;
-	[AstKind.VariableExpression] = 0;
-	[AstKind.AssignmentVariable] = 0;
-	[AstKind.FunctionLiteralExpression] = 3;
-	[AstKind.TableConstructorExpression] = 3;
+	[AstKind.BooleanExpression] = 0,
+	[AstKind.NumberExpression] = 0,
+	[AstKind.StringExpression] = 0,
+	[AstKind.NilExpression] = 0,
+	[AstKind.VarargExpression] = 0,
+	[AstKind.OrExpression] = 12,
+	[AstKind.AndExpression] = 11,
+	[AstKind.LessThanExpression] = 10,
+	[AstKind.GreaterThanExpression] = 10,
+	[AstKind.LessThanOrEqualsExpression] = 10,
+	[AstKind.GreaterThanOrEqualsExpression] = 10,
+	[AstKind.NotEqualsExpression] = 10,
+	[AstKind.EqualsExpression] = 10,
+	[AstKind.StrCatExpression] = 9,
+	[AstKind.AddExpression] = 8,
+	[AstKind.SubExpression] = 8,
+	[AstKind.MulExpression] = 7,
+	[AstKind.DivExpression] = 7,
+	[AstKind.ModExpression] = 7,
+	[AstKind.NotExpression] = 5,
+	[AstKind.LenExpression] = 5,
+	[AstKind.NegateExpression] = 5,
+	[AstKind.PowExpression] = 4,
+	[AstKind.IndexExpression] = 1,
+	[AstKind.AssignmentIndexing] = 1,
+	[AstKind.FunctionCallExpression] = 2,
+	[AstKind.PassSelfFunctionCallExpression] = 2,
+	[AstKind.VariableExpression] = 0,
+	[AstKind.AssignmentVariable] = 0,
+	[AstKind.FunctionLiteralExpression] = 3,
+	[AstKind.TableConstructorExpression] = 3,
 }
 
-Ast.AstKind = AstKind;
+Ast.AstKind = AstKind
 
 function Ast.astKindExpressionToNumber(kind)
-	return astKindExpressionLookup[kind] or 100;
+	return astKindExpressionLookup[kind] or 100
 end
 
 function Ast.ConstantNode(val)
-	if type(val) == "nil" then
-		return Ast.NilExpression();
+	if val == nil then
+		return Ast.NilExpression()
 	end
-
-	if type(val) == "string" then
-		return Ast.StringExpression(val);
-	end
-
-	if type(val) == "number" then
-		return Ast.NumberExpression(val);
-	end
-
-	if type(val) == "boolean" then
-		return Ast.BooleanExpression(val);
+	
+	local valType = type(val)
+	if valType == "string" then
+		return Ast.StringExpression(val)
+	elseif valType == "number" then
+		return Ast.NumberExpression(val)
+	elseif valType == "boolean" then
+		return Ast.BooleanExpression(val)
 	end
 end
 
+-- Shared function for AST nodes that need to resolve their variable name from a scope
+local function sharedGetName(self)
+	return self.scope:getVariableName(self.id)
+end
+
+-- Helper to safely fold binary operations
+local function foldBinary(simplify, lhs, rhs, operation)
+	if simplify and lhs.isConstant and rhs.isConstant then
+		local success, val = pcall(operation, lhs.value, rhs.value)
+		if success then
+			return Ast.ConstantNode(val)
+		end
+	end
+	return nil
+end
+
+-- Helper to safely fold unary operations
+local function foldUnary(simplify, rhs, operation)
+	if simplify and rhs.isConstant then
+		local success, val = pcall(operation, rhs.value)
+		if success then
+			return Ast.ConstantNode(val)
+		end
+	end
+	return nil
+end
 
 
 function Ast.NopStatement()
-	return {
-		kind = AstKind.NopStatement;
-	}
+	return { kind = AstKind.NopStatement }
 end
 
 function Ast.IfElseExpression(condition, true_value, false_value)
@@ -161,7 +181,6 @@ function Ast.TopNode(body, globalScope)
 		kind = AstKind.TopNode,
 		body = body,
 		globalScope = globalScope,
-
 	}
 end
 
@@ -169,7 +188,6 @@ function Ast.TableEntry(value)
 	return {
 		kind = AstKind.TableEntry,
 		value = value,
-
 	}
 end
 
@@ -178,7 +196,6 @@ function Ast.KeyedTableEntry(key, value)
 		kind = AstKind.KeyedTableEntry,
 		key = key,
 		value = value,
-
 	}
 end
 
@@ -186,7 +203,7 @@ function Ast.TableConstructorExpression(entries)
 	return {
 		kind = AstKind.TableConstructorExpression,
 		entries = entries,
-	};
+	}
 end
 
 -- Create Statement Block
@@ -226,9 +243,9 @@ function Ast.PassSelfFunctionCallStatement(base, passSelfFunctionName, args)
 end
 
 function Ast.AssignmentStatement(lhs, rhs)
-	if(#lhs < 1) then
-		print(debug.traceback());
-		error("Something went wrong!");
+	if #lhs < 1 then
+		print(debug.traceback())
+		error("Something went wrong!")
 	end
 	return {
 		kind = AstKind.AssignmentStatement,
@@ -238,59 +255,31 @@ function Ast.AssignmentStatement(lhs, rhs)
 end
 
 function Ast.CompoundAddStatement(lhs, rhs)
-	return {
-		kind = AstKind.CompoundAddStatement,
-		lhs = lhs,
-		rhs = rhs,
-	}
+	return { kind = AstKind.CompoundAddStatement, lhs = lhs, rhs = rhs }
 end
 
 function Ast.CompoundSubStatement(lhs, rhs)
-	return {
-		kind = AstKind.CompoundSubStatement,
-		lhs = lhs,
-		rhs = rhs,
-	}
+	return { kind = AstKind.CompoundSubStatement, lhs = lhs, rhs = rhs }
 end
 
 function Ast.CompoundMulStatement(lhs, rhs)
-	return {
-		kind = AstKind.CompoundMulStatement,
-		lhs = lhs,
-		rhs = rhs,
-	}
+	return { kind = AstKind.CompoundMulStatement, lhs = lhs, rhs = rhs }
 end
 
 function Ast.CompoundDivStatement(lhs, rhs)
-	return {
-		kind = AstKind.CompoundDivStatement,
-		lhs = lhs,
-		rhs = rhs,
-	}
+	return { kind = AstKind.CompoundDivStatement, lhs = lhs, rhs = rhs }
 end
 
 function Ast.CompoundPowStatement(lhs, rhs)
-	return {
-		kind = AstKind.CompoundPowStatement,
-		lhs = lhs,
-		rhs = rhs,
-	}
+	return { kind = AstKind.CompoundPowStatement, lhs = lhs, rhs = rhs }
 end
 
 function Ast.CompoundModStatement(lhs, rhs)
-	return {
-		kind = AstKind.CompoundModStatement,
-		lhs = lhs,
-		rhs = rhs,
-	}
+	return { kind = AstKind.CompoundModStatement, lhs = lhs, rhs = rhs }
 end
 
 function Ast.CompoundConcatStatement(lhs, rhs)
-	return {
-		kind = AstKind.CompoundConcatStatement,
-		lhs = lhs,
-		rhs = rhs,
-	}
+	return { kind = AstKind.CompoundConcatStatement, lhs = lhs, rhs = rhs }
 end
 
 function Ast.FunctionCallStatement(base, args)
@@ -378,9 +367,7 @@ function Ast.FunctionDeclaration(scope, id, indices, args, body)
 		indices = indices,
 		args = args,
 		body = body,
-		getName = function(self)
-			return self.scope:getVariableName(self.id);
-		end,
+		getName = sharedGetName,
 	}
 end
 
@@ -391,9 +378,7 @@ function Ast.LocalFunctionDeclaration(scope, id, args, body)
 		id = id,
 		args = args,
 		body = body,
-		getName = function(self)
-			return self.scope:getVariableName(self.id);
-		end,
+		getName = sharedGetName,
 	}
 end
 
@@ -408,7 +393,7 @@ end
 
 function Ast.VarargExpression()
 	return {
-		kind = AstKind.VarargExpression;
+		kind = AstKind.VarargExpression,
 		isConstant = false,
 	}
 end
@@ -446,12 +431,8 @@ function Ast.StringExpression(value)
 end
 
 function Ast.OrExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value or rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a or b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.OrExpression,
@@ -462,12 +443,8 @@ function Ast.OrExpression(lhs, rhs, simplify)
 end
 
 function Ast.AndExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value and rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a and b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.AndExpression,
@@ -478,12 +455,8 @@ function Ast.AndExpression(lhs, rhs, simplify)
 end
 
 function Ast.LessThanExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value < rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a < b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.LessThanExpression,
@@ -494,12 +467,8 @@ function Ast.LessThanExpression(lhs, rhs, simplify)
 end
 
 function Ast.GreaterThanExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value > rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a > b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.GreaterThanExpression,
@@ -510,12 +479,8 @@ function Ast.GreaterThanExpression(lhs, rhs, simplify)
 end
 
 function Ast.LessThanOrEqualsExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value <= rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a <= b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.LessThanOrEqualsExpression,
@@ -526,12 +491,8 @@ function Ast.LessThanOrEqualsExpression(lhs, rhs, simplify)
 end
 
 function Ast.GreaterThanOrEqualsExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value >= rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a >= b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.GreaterThanOrEqualsExpression,
@@ -542,12 +503,8 @@ function Ast.GreaterThanOrEqualsExpression(lhs, rhs, simplify)
 end
 
 function Ast.NotEqualsExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value ~= rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a ~= b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.NotEqualsExpression,
@@ -558,12 +515,8 @@ function Ast.NotEqualsExpression(lhs, rhs, simplify)
 end
 
 function Ast.EqualsExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value == rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a == b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.EqualsExpression,
@@ -574,12 +527,8 @@ function Ast.EqualsExpression(lhs, rhs, simplify)
 end
 
 function Ast.StrCatExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value .. rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a .. b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.StrCatExpression,
@@ -590,12 +539,8 @@ function Ast.StrCatExpression(lhs, rhs, simplify)
 end
 
 function Ast.AddExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value + rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a + b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.AddExpression,
@@ -606,12 +551,8 @@ function Ast.AddExpression(lhs, rhs, simplify)
 end
 
 function Ast.SubExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value - rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a - b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.SubExpression,
@@ -622,12 +563,8 @@ function Ast.SubExpression(lhs, rhs, simplify)
 end
 
 function Ast.MulExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value * rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a * b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.MulExpression,
@@ -638,10 +575,10 @@ function Ast.MulExpression(lhs, rhs, simplify)
 end
 
 function Ast.DivExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant and rhs.value ~= 0) then
-		local success, val = pcall(function() return lhs.value / rhs.value end);
+	if simplify and rhs.isConstant and lhs.isConstant and rhs.value ~= 0 then
+		local success, val = pcall(function() return lhs.value / rhs.value end)
 		if success then
-			return Ast.ConstantNode(val);
+			return Ast.ConstantNode(val)
 		end
 	end
 
@@ -654,12 +591,8 @@ function Ast.DivExpression(lhs, rhs, simplify)
 end
 
 function Ast.ModExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value % rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a % b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.ModExpression,
@@ -670,12 +603,8 @@ function Ast.ModExpression(lhs, rhs, simplify)
 end
 
 function Ast.NotExpression(rhs, simplify)
-	if(simplify and rhs.isConstant) then
-		local success, val = pcall(function() return not rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldUnary(simplify, rhs, function(a) return not a end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.NotExpression,
@@ -685,12 +614,8 @@ function Ast.NotExpression(rhs, simplify)
 end
 
 function Ast.NegateExpression(rhs, simplify)
-	if(simplify and rhs.isConstant) then
-		local success, val = pcall(function() return -rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldUnary(simplify, rhs, function(a) return -a end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.NegateExpression,
@@ -700,12 +625,8 @@ function Ast.NegateExpression(rhs, simplify)
 end
 
 function Ast.LenExpression(rhs, simplify)
-	if(simplify and rhs.isConstant) then
-		local success, val = pcall(function() return #rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldUnary(simplify, rhs, function(a) return #a end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.LenExpression,
@@ -715,12 +636,8 @@ function Ast.LenExpression(rhs, simplify)
 end
 
 function Ast.PowExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value ^ rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local folded = foldBinary(simplify, lhs, rhs, function(a, b) return a ^ b end)
+	if folded then return folded end
 
 	return {
 		kind = AstKind.PowExpression,
@@ -754,7 +671,6 @@ function Ast.PassSelfFunctionCallExpression(base, passSelfFunctionName, args)
 		base = base,
 		passSelfFunctionName = passSelfFunctionName,
 		args = args,
-
 	}
 end
 
@@ -767,26 +683,22 @@ function Ast.FunctionCallExpression(base, args)
 end
 
 function Ast.VariableExpression(scope, id)
-	scope:addReference(id);
+	scope:addReference(id)
 	return {
 		kind = AstKind.VariableExpression, 
 		scope = scope,
 		id = id,
-		getName = function(self)
-			return self.scope.getVariableName(self.id);
-		end,
+		getName = sharedGetName,
 	}
 end
 
 function Ast.AssignmentVariable(scope, id)
-	scope:addReference(id);
+	scope:addReference(id)
 	return {
 		kind = AstKind.AssignmentVariable, 
 		scope = scope,
 		id = id,
-		getName = function(self)
-			return self.scope.getVariableName(self.id);
-		end,
+		getName = sharedGetName,
 	}
 end
 
@@ -798,6 +710,4 @@ function Ast.FunctionLiteralExpression(args, body)
 	}
 end
 
-
-
-return Ast;
+return Ast
