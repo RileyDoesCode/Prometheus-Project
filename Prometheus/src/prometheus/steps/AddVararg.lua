@@ -2,32 +2,42 @@
 --
 -- AddVararg.lua
 --
--- This Script provides a Simple Obfuscation Step that wraps the entire Script into a function
+-- This Script provides a Simple Obfuscation Step that adds a vararg parameter to all functions.
 
-local Step = require("prometheus.step");
-local Ast = require("prometheus.ast");
-local visitast = require("prometheus.visitast");
-local AstKind = Ast.AstKind;
+local Step = require("prometheus.step")
+local Ast = require("prometheus.ast")
+local visitast = require("prometheus.visitast")
+local AstKind = Ast.AstKind
 
-local AddVararg = Step:extend();
-AddVararg.Description = "This Step Adds Vararg to all Functions";
-AddVararg.Name = "Add Vararg";
+local AddVararg = Step:extend()
+AddVararg.Description = "This Step Adds Vararg to all Functions"
+AddVararg.Name = "Add Vararg"
 
-AddVararg.SettingsDescriptor = {
-}
+AddVararg.SettingsDescriptor = {}
 
 function AddVararg:init(settings)
-	
+	-- No initialization needed
 end
+
+-- Cache the target node kinds for faster O(1) lookups during traversal
+local TARGET_KINDS = {
+	[AstKind.FunctionDeclaration] = true,
+	[AstKind.LocalFunctionDeclaration] = true,
+	[AstKind.FunctionLiteralExpression] = true,
+}
 
 function AddVararg:apply(ast)
 	visitast(ast, nil, function(node)
-        if node.kind == AstKind.FunctionDeclaration or node.kind == AstKind.LocalFunctionDeclaration or node.kind == AstKind.FunctionLiteralExpression then
-            if #node.args < 1 or node.args[#node.args].kind ~= AstKind.VarargExpression then
-                node.args[#node.args + 1] = Ast.VarargExpression();
-            end
-        end
-    end)
+		if TARGET_KINDS[node.kind] then
+			local args = node.args
+			local numArgs = #args
+			
+			-- If there are no arguments, or the last argument is not a vararg, append one
+			if numArgs < 1 or args[numArgs].kind ~= AstKind.VarargExpression then
+				args[numArgs + 1] = Ast.VarargExpression()
+			end
+		end
+	end)
 end
 
-return AddVararg;
+return AddVararg
