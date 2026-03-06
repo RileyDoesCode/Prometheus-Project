@@ -1,13 +1,15 @@
--- print first n primes
+-- Print all prime numbers up to n
+
 local function primes(n)
-    local function isPrime(n)
-        for i = 2, math.sqrt(n) do
-            if n % i == 0 then
+    local function isPrime(num)
+        for i = 2, math.floor(math.sqrt(num)) do
+            if num % i == 0 then
                 return false
             end
         end
         return true
     end
+
     for i = 2, n do
         if isPrime(i) then
             print(i)
