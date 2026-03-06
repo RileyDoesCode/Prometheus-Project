@@ -2,10 +2,9 @@
 --
 -- namegenerators/number.lua
 --
--- This Script provides a function for generation of simple up counting names but with hex numbers
-
-local PREFIX = "_";
+-- This Script provides a function for the generation of simple up-counting names using hex numbers
 
 return function(id, scope)
-	return PREFIX .. tostring(id);
+	-- Format as a lowercase hexadecimal string with a leading underscore (e.g., _a, _1f, _2b)
+	return string.format("_%x", id)
 end
