@@ -1,16 +1,15 @@
 require('dotenv').config();
-const { 
-    Client, 
-    GatewayIntentBits, 
-    Partials, 
-    REST, 
-    Routes, 
-    SlashCommandBuilder, 
-    AttachmentBuilder 
-} = require('discord.js');
+const { Client, GatewayIntentBits, Partials, REST, Routes, SlashCommandBuilder, AttachmentBuilder } = require('discord.js');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
+
+const port = process.env.PORT || 3000;
+http.createServer((req, res) => {
+    res.writeHead(200);
+    res.end('Bot is running!');
+}).listen(port);
 
 const client = new Client({
     intents: [
@@ -70,18 +69,15 @@ const commands = [
 ].map(command => command.toJSON());
 
 client.once('ready', async () => {
-    console.log(`🤖 Logged in as ${client.user.tag}!`);
-
+    console.log(`Logged in as ${client.user.tag}!`);
     const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
     try {
-        console.log('Started refreshing application (/) commands.');
         await rest.put(
             Routes.applicationCommands(client.user.id),
             { body: commands },
         );
-        console.log('Successfully reloaded application (/) commands.');
     } catch (error) {
-        console.error('Error registering commands:', error);
+        console.error(error);
     }
 });
 
@@ -89,7 +85,6 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     if (interaction.commandName === 'obfuscate') {
-        
         if (interaction.guild) {
             return interaction.reply({ 
                 content: "❌ **Security Warning:** To protect your scripts, this command can **only be used in my DMs**.\nPlease right-click my profile and click 'Message' to use me!", 
@@ -100,8 +95,8 @@ client.on('interactionCreate', async interaction => {
         const attachment = interaction.options.getAttachment('file');
         const platformFlag = interaction.options.getString('platform');
         const preset = interaction.options.getString('presets');
-
         const originalName = attachment.name;
+
         if (!originalName.endsWith('.lua') && !originalName.endsWith('.txt')) {
             return interaction.reply({ 
                 content: "❌ Invalid file! Please provide a `.lua` or `.txt` file.", 
@@ -140,30 +135,26 @@ client.on('interactionCreate', async interaction => {
 
             luaProcess.on("close", async (code) => {
                 if (fs.existsSync(outputPath)) {
-                
                     const stats = fs.statSync(outputPath);
                     const fileSize = formatBytes(stats.size);
-                    
                     const obfuscatedAttachment = new AttachmentBuilder(outputPath, { name: newFileName });
-
                     const successMessage = `**Obfuscated Success!** File: ${originalName} ${fileSize}\n\`${newFileName}\``;
 
                     await interaction.editReply({
                         content: successMessage,
                         files: [obfuscatedAttachment]
                     });
+
                     try {
                         fs.unlinkSync(inputPath);
                         fs.unlinkSync(outputPath);
                     } catch (err) {}
-
                 } else {
                     if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
                     const errorSnippet = stderrData.slice(0, 1500) || "Unknown Prometheus Error.";
                     await interaction.editReply(`❌ **Obfuscation Failed:**\n\`\`\`lua\n${errorSnippet}\n\`\`\``);
                 }
             });
-
         } catch (error) {
             console.error(error);
             await interaction.editReply("❌ An error occurred while trying to download or process your file.");
