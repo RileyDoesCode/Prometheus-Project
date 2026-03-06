@@ -1,11 +1,15 @@
--- Custom iterator that creates a predictable countdown
+-- Custom iterator that produces a predictable countdown
+
 local function countdown(startValue, step)
     local value = startValue + step
+
     return function()
         value = value - step
+
         if value <= 0 then
             return nil
         end
+
         return value
     end
 end
