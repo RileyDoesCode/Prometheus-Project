@@ -1,14 +1,18 @@
-FROM node:18
+# Use an official Node.js image
+FROM node:18-alpine
 
-RUN apt-get update && apt-get install -y lua5.1
+# Install Lua 5.1 (Crucial for Prometheus to work)
+RUN apk update && apk add --no-cache lua5.1
 
-WORKDIR /usr/src/app
+# Create app directory
+WORKDIR /app
 
-COPY package*.json ./
+# Install app dependencies
+COPY package.json ./
 RUN npm install
 
+# Copy the rest of the bot and Prometheus files
 COPY . .
 
-EXPOSE 3000
-
-CMD [ "node", "server.js" ]
+# Start the bot
+CMD ["node", "bot.js"]
