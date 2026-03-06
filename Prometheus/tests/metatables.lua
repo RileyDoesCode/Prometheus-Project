@@ -1,4 +1,5 @@
--- Example showcasing metamethod driven vector arithmetic
+-- Example showcasing metamethod-driven vector arithmetic
+
 local Vector = {}
 Vector.__index = Vector
 
@@ -14,13 +15,22 @@ function Vector:describe()
     return string.format("(%d,%d)", self.x, self.y)
 end
 
+--------------------------------------------------
+-- Path definition
+--------------------------------------------------
+
 local path = {
     Vector:new(2, 3),
     Vector:new(-1, 4),
     Vector:new(0, -2)
 }
 
+--------------------------------------------------
+-- Simulation
+--------------------------------------------------
+
 local position = Vector:new(0, 0)
+
 for idx, delta in ipairs(path) do
     position = position + delta
     print(string.format("step%d:%s", idx, position:describe()))
