@@ -1,22 +1,40 @@
 -- Simple deterministic finite-state machine demonstration
+
+--------------------------------------------------
+-- Transition table
+--------------------------------------------------
+
 local transitions = {
     idle = { start = "running" },
     running = { pause = "paused", stop = "stopped" },
     paused = { resume = "running", stop = "stopped" }
 }
 
+--------------------------------------------------
+-- Expected execution steps
+--------------------------------------------------
+
 local steps = {
-    { event = "start", expect = "running" },
-    { event = "pause", expect = "paused" },
+    { event = "start",  expect = "running" },
+    { event = "pause",  expect = "paused" },
     { event = "resume", expect = "running" },
-    { event = "stop", expect = "stopped" }
+    { event = "stop",   expect = "stopped" }
 }
 
+--------------------------------------------------
+-- FSM Execution
+--------------------------------------------------
+
 local state = "idle"
+
 for idx, step in ipairs(steps) do
     local rule = transitions[state]
     state = rule and rule[step.event]
-    assert(state == step.expect, string.format("bad transition at %d", idx))
+
+    assert(state == step.expect,
+        string.format("bad transition at %d", idx)
+    )
+
     print(string.format("%d:%s->%s", idx, step.event, state))
 end
 
