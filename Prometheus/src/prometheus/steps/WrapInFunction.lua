@@ -4,13 +4,13 @@
 --
 -- This Script provides a Simple Obfuscation Step that wraps the entire Script into a function
 
-local Step = require("prometheus.step");
-local Ast = require("prometheus.ast");
-local Scope = require("prometheus.scope");
+local Step = require("prometheus.step")
+local Ast = require("prometheus.ast")
+local Scope = require("prometheus.scope")
 
-local WrapInFunction = Step:extend();
-WrapInFunction.Description = "This Step Wraps the Entire Script into a Function";
-WrapInFunction.Name = "Wrap in Function";
+local WrapInFunction = Step:extend()
+WrapInFunction.Description = "This Step Wraps the Entire Script into a Function"
+WrapInFunction.Name = "Wrap in Function"
 
 WrapInFunction.SettingsDescriptor = {
 	Iterations = {
@@ -24,22 +24,28 @@ WrapInFunction.SettingsDescriptor = {
 }
 
 function WrapInFunction:init(settings)
-	
+	-- No initialization needed
 end
 
-function WrapInFunction:apply(ast)
-	for i = 1, self.Iterations, 1 do
-		local body = ast.body;
+function WrapInFunction:apply(ast, pipeline)
+	for i = 1, self.Iterations do
+		local body = ast.body
 
-		local scope = Scope:new(ast.globalScope);
-		body.scope:setParent(scope);
+		local scope = Scope:new(ast.globalScope)
+		body.scope:setParent(scope)
 
+		-- Wraps the script as: return (function(...) <original body> end)(...)
 		ast.body = Ast.Block({
 			Ast.ReturnStatement({
-				Ast.FunctionCallExpression(Ast.FunctionLiteralExpression({Ast.VarargExpression()}, body), {Ast.VarargExpression()})
-			});
-		}, scope);
+				Ast.FunctionCallExpression(
+					Ast.FunctionLiteralExpression({ Ast.VarargExpression() }, body),
+					{ Ast.VarargExpression() }
+				)
+			})
+		}, scope)
 	end
+	
+	return ast
 end
 
-return WrapInFunction;
+return WrapInFunction
