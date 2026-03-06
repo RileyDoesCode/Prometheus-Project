@@ -1,12 +1,27 @@
 -- This Script is Part of the Prometheus Obfuscator by Levno_710
 --
 -- test.lua
--- This script contains the Code for the Prometheus CLI
+-- This script contains the code for the Prometheus CLI
 
--- Configure package.path for requiring Prometheus
+---------------------------------------------------------------------
+-- Resolve Script Directory
+---------------------------------------------------------------------
+
 local function script_path()
-	local str = debug.getinfo(2, "S").source:sub(2)
-	return str:match("(.*[/%\\])") or "";
+    local source = debug.getinfo(2, "S").source
+    local path = source:sub(2)
+
+    return path:match("(.*[/%\\])") or ""
 end
-package.path = script_path() .. "?.lua;" .. package.path;
-require("src.cli");
+
+---------------------------------------------------------------------
+-- Configure package.path for requiring Prometheus
+---------------------------------------------------------------------
+
+package.path = script_path() .. "?.lua;" .. package.path
+
+---------------------------------------------------------------------
+-- Start CLI
+---------------------------------------------------------------------
+
+require("src.cli")
