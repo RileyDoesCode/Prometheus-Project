@@ -1,6 +1,8 @@
--- Print the fibonacci sequence
+-- Prints the Fibonacci sequence up to a maximum value
+
 local function fibonacci(max)
     local a, b = 0, 1
+
     while a < max do
         print(a)
         a, b = b, a + b
