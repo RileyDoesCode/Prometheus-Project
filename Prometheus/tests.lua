@@ -1,164 +1,213 @@
 -- This Script is Part of the Prometheus Obfuscator by Levno_710
 --
 -- test.lua
--- This file will Perform tests using all lua files within the tests directory
+-- Performs tests using all Lua files inside the ./tests directory
 
 -- Require Prometheus
 local Prometheus = require("src.prometheus")
 
 -- Enable Debugging
--- logger.logLevel = logger.LogLevel.Debug;
+-- Prometheus.Logger.logLevel = Prometheus.Logger.LogLevel.Debug
 
--- Config Variables - Later passed as Parameters
-local noColors    = false; -- Wether Colors in the Console output should be enabled
-local isWindows = true;    -- Wether the Test are Performed on a Windows or Linux System
-local ciMode = false; 	   -- Wether the Test error are ignored or not
-local iterationCount = 20; -- How often each test should be executed
+---------------------------------------------------------------------
+-- Configuration
+---------------------------------------------------------------------
+
+local noColors       = false  -- Disable ANSI colors in console output
+local isWindows      = true   -- Determines if tests run on Windows or Linux
+local ciMode         = false  -- CI mode: throw error when tests fail
+local iterationCount = 20     -- Number of executions per test/preset
+
+---------------------------------------------------------------------
+-- Parse CLI Arguments
+---------------------------------------------------------------------
 
 for _, currArg in pairs(arg) do
 	if currArg == "--Linux" then
 		isWindows = false
 	end
+
 	if currArg == "--CI" then
 		ciMode = true
 	end
+
 	local iterationValue = currArg:match("^%-%-iterations=(%d+)$")
 	if iterationValue then
 		iterationCount = math.max(tonumber(iterationValue), 1)
 	end
 end
 
---  Enable/Disable Console Colors - this may be needed because cmd.exe and powershell.exe do not support ANSI Color Escape Sequences. The Windows Terminal Application is needed
-Prometheus.colors.enabled = not noColors;
+---------------------------------------------------------------------
+-- Prometheus Setup
+---------------------------------------------------------------------
 
--- Apply Obfuscation Pipeline
+Prometheus.colors.enabled = not noColors
+
 local pipeline = Prometheus.Pipeline:new({
-	Seed = 0; -- For Using Time as Seed
-	VarNamePrefix = ""; -- No Custom Prefix
-});
+	Seed = 0,          -- 0 = use time as seed
+	VarNamePrefix = "" -- No custom prefix
+})
 
--- "Mangled" for names like this : a, b, c, d, ...
--- "MangledShuffled" is the same except the chars come in a different order - Recomended
--- "Il" for weird names like this : IlIIl1llI11l1  - Recomended to make less readable
--- "Number" for names like this : _1, _2, _3, ...  - Not recomended
-pipeline:setNameGenerator("MangledShuffled");
+-- Name generators:
+-- Mangled           -> a, b, c...
+-- MangledShuffled   -> shuffled characters (recommended)
+-- Il                -> IlIIl1llI11l1 style
+-- Number            -> _1, _2 (not recommended)
+pipeline:setNameGenerator("MangledShuffled")
+
+---------------------------------------------------------------------
+-- Utility Functions
+---------------------------------------------------------------------
 
 local function describePlatform()
 	return isWindows and "Windows" or "Linux"
 end
+
+local function scandir(directory)
+	local files = {}
+	local popen = io.popen
+
+	local command = isWindows
+		and ('dir "' .. directory .. '" /b')
+		or ('ls -a "' .. directory .. '"')
+
+	local pfile = popen(command)
+
+	for filename in pfile:lines() do
+		if filename:sub(-4) == ".lua" then
+			files[#files + 1] = filename
+		end
+	end
+
+	pfile:close()
+	return files
+end
+
+local function shallowcopy(orig)
+	if type(orig) ~= "table" then
+		return orig
+	end
+
+	local copy = {}
+	for k, v in pairs(orig) do
+		copy[k] = v
+	end
+
+	return copy
+end
+
+local function validate(a, b)
+	local outa = ""
+	local outb = ""
+
+	local enva = shallowcopy(getfenv(a))
+	local envb = shallowcopy(getfenv(b))
+
+	enva.print = function(...)
+		for _, v in ipairs({...}) do
+			outa = outa .. tostring(v)
+		end
+	end
+
+	envb.print = function(...)
+		for _, v in ipairs({...}) do
+			outb = outb .. tostring(v)
+		end
+	end
+
+	setfenv(a, enva)
+	setfenv(b, envb)
+
+	if not pcall(a) then
+		error("Expected Reference Program not to Fail!")
+	end
+
+	if not pcall(b) then
+		return false, outa, nil
+	end
+
+	return outa == outb, outa, outb
+end
+
+---------------------------------------------------------------------
+-- Test Execution
+---------------------------------------------------------------------
 
 print(string.format(
 	"Performing Prometheus Tests (iterations=%d per file/preset, platform=%s)...",
 	iterationCount,
 	describePlatform()
 ))
-local function scandir(directory)
-    local i, t, popen = 0, {}, io.popen
-    local pfile = popen(isWindows and 'dir "'..directory..'" /b' or 'ls -a "'..directory..'"')
-    for filename in pfile:lines() do
-		if string.sub(filename, -4) == ".lua" then
-			i = i + 1
-			t[i] = filename
-		end
-    end
-    pfile:close()
-    return t
-end
 
-local function shallowcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in pairs(orig) do
-            copy[orig_key] = orig_value
-        end
-    else -- number, string, boolean, etc
-        copy = orig
-    end
-    return copy
-end
+local presets  = Prometheus.Presets
+local testdir  = "./tests/"
+local failures = 0
 
-local function validate(a, b)
-	local outa  = "";
-	local outb  = "";
+Prometheus.Logger.logLevel = Prometheus.Logger.LogLevel.Error
 
-	local enva = shallowcopy(getfenv(a));
-	local envb = shallowcopy(getfenv(a));
+for _, filename in ipairs(scandir(testdir)) do
+	local path = testdir .. filename
+	local file = io.open(path, "r")
 
-	enva.print = function(...)
-		for i, v in ipairs({...}) do
-			outa = outa .. tostring(v);
-		end
-	end
-	
-	envb.print = function(...)
-		for i, v in ipairs({...}) do
-			outb = outb .. tostring(v);
-		end
-	end
+	local code = file:read("*a")
+	print(Prometheus.colors("[CURRENT] ", "magenta") .. filename)
 
-	setfenv(a, enva);
-	setfenv(b, envb);
-
-	if(not pcall(a)) then error("Expected Reference Program not to Fail!") end
-	if(not pcall(b)) then return false, outa, nil end
-
-	return outa == outb, outa, outb
-end
-
-
-local presets = Prometheus.Presets;
-local testdir = "./tests/"
-local failed = {};
-Prometheus.Logger.logLevel = Prometheus.Logger.LogLevel.Error;
-local fc = 0;
-for i, filename in ipairs(scandir(testdir)) do
-	local path = testdir .. filename;
-	local file = io.open(path,"r");
-
-	local code = file:read("*a");
-	print(Prometheus.colors("[CURRENT] ", "magenta") .. filename);
 	for name, preset in pairs(presets) do
+
+		-- Remove AntiTamper step for tests
 		for i = #preset.Steps, 1, -1 do
 			if preset.Steps[i].Name == "AntiTamper" then
-				table.remove(preset.Steps, i);
+				table.remove(preset.Steps, i)
 			end
 		end
+
 		for iteration = 1, iterationCount do
-			pipeline = Prometheus.Pipeline:fromConfig(preset);
-			local obfuscated = pipeline:apply(code);
+			pipeline = Prometheus.Pipeline:fromConfig(preset)
 
-			local funca = loadstring(code);
-			local funcb = loadstring(obfuscated);
+			local obfuscated = pipeline:apply(code)
 
-			if funcb == nil then
-				print(Prometheus.colors("[FAILED]  ", "red") .. "(" .. filename .. "): " .. name .. ", Invalid Lua!");
-				print("[SOURCE]", obfuscated);
-				fc = fc + 1;
+			local funca = loadstring(code)
+			local funcb = loadstring(obfuscated)
+
+			if not funcb then
+				print(Prometheus.colors("[FAILED]  ", "red") ..
+					"(" .. filename .. "): " .. name .. ", Invalid Lua!")
+				print("[SOURCE]", obfuscated)
+
+				failures = failures + 1
 			else
-				local validated, outa, outb = validate(funca, funcb);
-		
+				local validated, outa, outb = validate(funca, funcb)
+
 				if not validated then
-					print(Prometheus.colors("[FAILED]  ", "red") .. "(" .. filename .. "): " .. name);
-					print("[OUTA]    ",    outa);
-					print("[OUTB]    ", outb);
-					print("[SOURCE]", obfuscated);
-					fc = fc + 1;
+					print(Prometheus.colors("[FAILED]  ", "red") ..
+						"(" .. filename .. "): " .. name)
+
+					print("[OUTA]    ", outa)
+					print("[OUTB]    ", outb)
+					print("[SOURCE]", obfuscated)
+
+					failures = failures + 1
 				end
 			end
 		end
 	end
-	file:close();
+
+	file:close()
 end
 
-if fc < 1 then
-	print(Prometheus.colors("[PASSED]  ", "green") .. "All tests passed!");
-	return 0;
+---------------------------------------------------------------------
+-- Final Result
+---------------------------------------------------------------------
+
+if failures < 1 then
+	print(Prometheus.colors("[PASSED]  ", "green") .. "All tests passed!")
+	return 0
 else
-	print(Prometheus.colors("[FAILED]  ", "red") .. "Some tests failed!");
+	print(Prometheus.colors("[FAILED]  ", "red") .. "Some tests failed!")
+
 	if ciMode then
 		error("Test Failed!")
 	end
-	return -1;
+
+	return -1
 end
