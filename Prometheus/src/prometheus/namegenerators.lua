@@ -1,7 +1,11 @@
+-- This Script is Part of the Prometheus Obfuscator by Levno_710
+--
+-- namegenerators.lua (or init.lua)
+
 return {
-	Mangled = require("prometheus.namegenerators.mangled");
-	MangledShuffled = require("prometheus.namegenerators.mangled_shuffled");
-	Il = require("prometheus.namegenerators.Il");
-	Number = require("prometheus.namegenerators.number");
-	Confuse = require("prometheus.namegenerators.confuse");
+	Mangled         = require("prometheus.namegenerators.mangled"),
+	MangledShuffled = require("prometheus.namegenerators.mangled_shuffled"),
+	Il              = require("prometheus.namegenerators.Il"),
+	Number          = require("prometheus.namegenerators.number"),
+	Confuse         = require("prometheus.namegenerators.confuse"),
 }
