@@ -1,74 +1,101 @@
-const express = require('express');
-const { spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const cors = require('cors');
+const express = require("express")
+const { spawn } = require("child_process")
+const fs = require("fs")
+const path = require("path")
+const cors = require("cors")
 
-const app = express();
-const PORT = 3000;
+const app = express()
+const PORT = 3000
 
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
-app.use(express.static('public'));
+app.use(cors())
+app.use(express.json({ limit: "50mb" }))
+app.use(express.static("public"))
 
-app.post('/obfuscate', (req, res) => {
+app.post("/obfuscate", async (req, res) => {
 
-const { code, preset, platform } = req.body
+    try {
 
-if (!code) {
-return res.status(400).json({ error: "No code provided" })
-}
+        const { code, preset, platform } = req.body
 
-const id = Date.now()
+        if (!code || typeof code !== "string") {
+            return res.status(400).json({ error: "No Lua code provided" })
+        }
 
-const inputFile = `temp_${id}.lua`
-const outputFile = `temp_${id}.obfuscated.lua`
+        const id = Date.now() + "_" + Math.floor(Math.random() * 100000)
 
-const inputPath = path.join(__dirname, inputFile)
-const outputPath = path.join(__dirname, outputFile)
+        const inputFile = `temp_${id}.lua`
+        const outputFile = `temp_${id}.obfuscated.lua`
 
-fs.writeFileSync(inputPath, code)
+        const inputPath = path.join(__dirname, inputFile)
+        const outputPath = path.join(__dirname, outputFile)
 
-const args = [
-"Prometheus/cli.lua",
-"--preset", preset || "Medium",
-inputFile
-]
+        fs.writeFileSync(inputPath, code, "utf8")
 
-if(platform === "LuaU") args.unshift("--LuaU")
-if(platform === "Lua51") args.unshift("--Lua51")
+        const args = ["Prometheus/cli.lua"]
 
-const lua = spawn("lua5.1", args)
+        if (platform === "LuaU") args.push("--LuaU")
+        else args.push("--Lua51")
 
-let stderr = ""
+        args.push("--preset", preset || "Medium")
+        args.push("--nocolors")
 
-lua.stderr.on("data", d => stderr += d.toString())
+        args.push(inputFile)
 
-lua.on("close", () => {
+        const lua = spawn("lua5.1", args, {
+            cwd: __dirname
+        })
 
-if(fs.existsSync(outputPath)){
+        let stderr = ""
+        let stdout = ""
 
-const result = fs.readFileSync(outputPath,"utf8")
+        lua.stdout.on("data", d => stdout += d.toString())
+        lua.stderr.on("data", d => stderr += d.toString())
 
-try{
-fs.unlinkSync(inputPath)
-fs.unlinkSync(outputPath)
-}catch{}
+        lua.on("error", err => {
+            cleanup()
+            return res.status(500).json({
+                error: "Lua process failed",
+                details: err.message
+            })
+        })
 
-return res.json({result})
-}
+        lua.on("close", () => {
 
-if(fs.existsSync(inputPath)) fs.unlinkSync(inputPath)
+            if (fs.existsSync(outputPath)) {
 
-res.status(500).json({
-error:"Obfuscation failed",
-details:stderr || "Unknown error"
-})
+                const result = fs.readFileSync(outputPath, "utf8")
 
-})
+                cleanup()
+
+                return res.json({ result })
+            }
+
+            cleanup()
+
+            return res.status(500).json({
+                error: "Obfuscation failed",
+                details: stderr || stdout || "Unknown error"
+            })
+        })
+
+        function cleanup() {
+            try {
+                if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath)
+                if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath)
+            } catch {}
+        }
+
+    } catch (err) {
+
+        return res.status(500).json({
+            error: "Server error",
+            details: err.message
+        })
+
+    }
 
 })
 
 app.listen(PORT, () => {
-    console.log("Server running on http://localhost:" + PORT);
-});
+    console.log(`Server running at http://localhost:${PORT}`)
+})
