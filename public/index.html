@@ -1,219 +1,542 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <title>Prometheus Lua Obfuscator</title>
+    
+    <meta name="description" content="Prometheus Lua Obfuscator - Secure, optimize, and protect your Lua and Luau scripts with state-of-the-art obfuscation technology.">
+    <meta name="keywords" content="Lua obfuscator, Luau obfuscator, Roblox script protector, Lua minifier, Prometheus obfuscator, secure Lua code, script protection">
+    <meta name="author" content="Prometheus Project">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#020617">
+    <link rel="canonical" href="https://prometheus-project.onrender.com/">
 
-<title>Prometheus Lua Obfuscator</title>
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://prometheus-project.onrender.com/">
+    <meta property="og:title" content="Prometheus Lua Obfuscator">
+    <meta property="og:description" content="Secure, optimize, and protect your Lua and Luau scripts with state-of-the-art obfuscation technology.">
+    <meta property="og:image" content="https://prometheus-project.onrender.com/og-image.jpg">
 
-<script src="https://cdn.tailwindcss.com"></script>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://prometheus-project.onrender.com/">
+    <meta name="twitter:title" content="Prometheus Lua Obfuscator">
+    <meta name="twitter:description" content="Secure, optimize, and protect your Lua and Luau scripts with state-of-the-art obfuscation technology.">
+    <meta name="twitter:image" content="https://prometheus-project.onrender.com/og-image.jpg">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
-<style>
-body{
-font-family:Inter, sans-serif;
-background:#0b0f14;
-}
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
-.code{
-font-family:"JetBrains Mono", monospace;
-}
-</style>
+        .code-font {
+            font-family: "JetBrains Mono", monospace;
+        }
 
+        textarea::-webkit-scrollbar { width: 6px; height: 6px; }
+        textarea::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
+        textarea::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        textarea::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .modal-enter {
+            animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .blink {
+            animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        input[type="checkbox"] {
+            accent-color: #3b82f6;
+        }
+
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem top 50%;
+            background-size: 0.65rem auto;
+        }
+    </style>
 </head>
 
-<body class="text-gray-200">
+<body class="flex flex-col min-h-screen selection:bg-blue-500/30">
 
-<div class="max-w-6xl mx-auto p-6">
+    <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-8 py-4 sm:py-8 flex-grow flex flex-col gap-4 sm:gap-6">
 
-<h1 class="text-3xl font-semibold mb-6 text-blue-400">
-Prometheus Lua Obfuscator
-</h1>
+        <header class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-4 sm:pb-6">
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-start">
+                <div class="p-2 bg-orange-500/10 rounded-lg border border-orange-500/20 shrink-0">
+                    <i data-lucide="flame" class="text-orange-500 w-6 h-6 sm:w-7 sm:h-7"></i>
+                </div>
+                <div class="text-center sm:text-left">
+                    <h1 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+                        Prometheus
+                    </h1>
+                    <p class="text-[10px] sm:text-xs font-medium text-slate-400 uppercase tracking-wider">Lua Obfuscator</p>
+                </div>
+            </div>
 
-<div class="grid md:grid-cols-2 gap-6">
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-center">
+                <a href="https://omega-softworks.betteruptime.com/" target="_blank" class="flex items-center gap-2 px-4 py-2 sm:px-3 sm:py-1.5 rounded-md bg-slate-900 border border-slate-800 text-sm text-slate-300 hover:text-green-400 hover:border-slate-700 transition-colors active:scale-95">
+                    <i data-lucide="activity" class="w-4 h-4"></i> Status
+                </a>
+                <a href="https://github.com/RileyDoesCode/Prometheus-Project" target="_blank" class="p-2 sm:p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors active:scale-95">
+                    <i data-lucide="github" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </header>
 
-<!-- INPUT -->
-<div class="space-y-3">
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            
+            <div class="flex flex-col gap-2 sm:gap-3">
+                <div class="flex flex-wrap justify-between items-center px-1 gap-2">
+                    <label class="text-slate-300 text-sm sm:text-base font-semibold flex items-center gap-2">
+                        <i data-lucide="file-code" class="w-4 h-4 text-slate-500"></i> Input Script
+                    </label>
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <input type="file" id="fileInput" accept=".txt,.lua" class="hidden" onchange="handleFileUpload(event)">
+                        
+                        <button onclick="document.getElementById('fileInput').click()" class="flex-1 sm:flex-none justify-center flex items-center gap-2 px-3 py-2 sm:py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md border border-slate-700 transition-colors active:scale-95">
+                            <i data-lucide="upload" class="w-3.5 h-3.5 shrink-0"></i> Upload
+                        </button>
+                        <button onclick="pasteText()" class="flex-1 sm:flex-none justify-center flex items-center gap-2 px-3 py-2 sm:py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md border border-slate-700 transition-colors active:scale-95">
+                            <i data-lucide="clipboard-paste" class="w-3.5 h-3.5 shrink-0"></i> Paste
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-grow flex flex-col">
+                    <textarea id="input" placeholder="-- Paste or upload your Lua code here..." spellcheck="false"
+                        class="code-font w-full h-64 sm:h-80 lg:h-96 p-3 sm:p-4 rounded-lg bg-[#0f172a] border border-slate-800 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 outline-none text-emerald-400 shadow-inner resize-y sm:resize-none transition-all text-xs sm:text-sm"></textarea>
+                    <div class="flex justify-between text-[10px] sm:text-xs text-slate-500 mt-1.5 px-1">
+                        <span>Formats: .lua, .txt</span>
+                        <span>Max size: 50 MB</span>
+                    </div>
+                </div>
+            </div>
 
-<div class="flex justify-between items-center">
-<label class="font-medium text-gray-400">Input Lua Script</label>
+            <div class="flex flex-col gap-2 sm:gap-3">
+                <div class="flex flex-wrap justify-between items-center px-1 gap-2">
+                    <label class="text-slate-300 text-sm sm:text-base font-semibold flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-slate-500"></i> Obfuscated Output
+                    </label>
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <button onclick="copyText()" class="flex-1 sm:flex-none justify-center flex items-center gap-2 px-3 py-2 sm:py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-md border border-slate-700 transition-colors active:scale-95">
+                            <i data-lucide="copy" class="w-3.5 h-3.5 shrink-0"></i> Copy
+                        </button>
+                        <button onclick="downloadText()" class="flex-1 sm:flex-none justify-center flex items-center gap-2 px-3 py-2 sm:py-1.5 text-xs font-medium bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 rounded-md border border-blue-500/20 transition-colors active:scale-95">
+                            <i data-lucide="download" class="w-3.5 h-3.5 shrink-0"></i> Save
+                        </button>
+                    </div>
+                </div>
+                <textarea id="output" readonly placeholder="-- Output will appear here..." spellcheck="false"
+                    class="code-font w-full h-64 sm:h-80 lg:h-96 p-3 sm:p-4 rounded-lg bg-[#0f172a] border border-slate-800 outline-none text-amber-300 shadow-inner resize-y sm:resize-none text-xs sm:text-sm"></textarea>
+            </div>
 
-<button onclick="pasteText()"
-class="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 rounded">
-Paste
-</button>
-</div>
+        </main>
 
-<textarea id="input"
-class="code w-full h-80 p-4 rounded bg-[#0d1117] border border-gray-700 focus:outline-none focus:border-blue-500 text-green-400"></textarea>
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-4 sm:p-5 mt-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
+                
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs sm:text-sm font-medium text-slate-400">Security Preset</label>
+                    <select id="preset" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm rounded-md p-2.5 sm:p-3 outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all cursor-pointer">
+                        <option value="Minify">Minify (Lightest)</option>
+                        <option value="Weak">Weak (Basic)</option>
+                        <option value="Medium" selected>Medium (Recommended)</option>
+                        <option value="Strong">Strong (Maximum Security)</option>
+                    </select>
+                </div>
 
-</div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs sm:text-sm font-medium text-slate-400">Target Platform</label>
+                    <select id="platform" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm rounded-md p-2.5 sm:p-3 outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all cursor-pointer">
+                        <option value="Lua51">Standard Lua (5.1 - 5.4)</option>
+                        <option value="LuaU">Luau (Roblox)</option>
+                    </select>
+                </div>
 
-<div class="space-y-3">
+                <div class="flex items-end mt-2 sm:mt-0">
+                    <button id="run" onclick="obfuscate()" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold p-3 sm:p-2.5 rounded-md border border-blue-500 shadow-lg shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                        <span class="text-sm sm:text-base">Obfuscate Script</span>
+                    </button>
+                </div>
 
-<div class="flex justify-between items-center">
-<label class="font-medium text-gray-400">Obfuscated Output</label>
+            </div>
 
-<div class="flex gap-2">
+            <div class="mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3 bg-slate-950 border border-slate-800 px-4 py-2 sm:px-3 sm:py-1.5 rounded-full w-full sm:w-auto justify-center">
+                    <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-green-500 blink shrink-0"></span>
+                    <span id="statusText" class="text-xs sm:text-sm font-medium text-slate-300 truncate">System Ready</span>
+                </div>
 
-<button onclick="copyText()"
-class="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 rounded">
-Copy
-</button>
+                <button onclick="openContributors()" class="text-sm text-slate-400 hover:text-white flex items-center gap-2 transition-colors active:scale-95 py-2 sm:py-0">
+                    <i data-lucide="users" class="w-4 h-4"></i> View Contributors
+                </button>
+            </div>
+        </div>
 
-<button onclick="downloadText()"
-class="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 rounded">
-Download
-</button>
+    </div>
 
-</div>
-</div>
+    <footer class="border-t border-slate-900 bg-slate-950/50 py-6 sm:py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0 text-xs sm:text-sm text-slate-500 text-center sm:text-left">
+            <div>&copy; 2026 Prometheus Project. All rights reserved.</div>
+            
+            <div class="flex flex-wrap justify-center sm:justify-end items-center gap-4 sm:gap-6">
+                <a href="https://render.com" target="_blank" class="flex items-center gap-2 hover:text-slate-300 transition-colors">
+                    <i data-lucide="server" class="w-4 h-4 shrink-0"></i> Hosted on Render
+                </a>
+                <a href="https://ko-fi.com/rileybeerblx3" target="_blank" class="flex items-center gap-2 hover:text-pink-400 transition-colors">
+                    <i data-lucide="coffee" class="w-4 h-4 shrink-0"></i> Support Project
+                </a>
+            </div>
+        </div>
+    </footer>
 
-<textarea id="output"
-readonly
-class="code w-full h-80 p-4 rounded bg-[#0d1117] border border-gray-700 text-yellow-300"></textarea>
+    <div id="contributorsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="modal-enter bg-slate-900 border border-slate-700 rounded-xl shadow-2xl w-full max-w-[90%] sm:max-w-md max-h-[90vh] flex flex-col overflow-hidden">
+            
+            <div class="flex justify-between items-center p-4 sm:p-5 border-b border-slate-800 bg-slate-900/50 shrink-0">
+                <h2 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
+                    <i data-lucide="users" class="w-5 h-5 text-blue-400"></i> Contributors
+                </h2>
+                <button onclick="closeContributors()" class="p-2 sm:p-1 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors active:scale-95">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
 
-</div>
+            <div class="p-4 sm:p-5 space-y-2 overflow-y-auto">
+                <a href="https://github.com/levno-710" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/62939318?v=4" alt="Levno" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">levno-710</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/SpinnySpiwal" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/99829343?v=4" alt="Spinny" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">SpinnySpiwal</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/oxince" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/63640320?v=4" alt="ox" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">oxince</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/ccuser44" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/68124053?v=4" alt="ccuser44" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">ccuser44</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/pnlmonmail-a11y" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/255104132?v=4" alt="pnl" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">pnlmonmail-a11y</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/NougatBitz" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/67209080?v=4" alt="nougat" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">NougatBitz</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/pnlmon" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/46222202?v=4" alt="pnl" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">pnlmon</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/britzl" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/1300688?v=4" alt="brit" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">britzl</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/9382" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/49820045?v=4" alt="9" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">9382</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/Robbie-Wittenhagen" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/79983930?v=4" alt="Robbie" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">Robbie-Wittenhagen</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/Aws0mee" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/51889746?v=4" alt="Aws" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">Aws0mee</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/RodrigoDornelles" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/29123479?v=4" alt="Rodrigo" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">RodrigoDornelles</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+                
+                <a href="https://github.com/Zaenalos" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/99829343?v=4" alt="Zae" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">Zaenalos</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
 
-</div>
+                <a href="https://github.com/RileyDoesCode" target="_blank" class="flex items-center justify-between p-3 hover:bg-slate-800/50 rounded-lg border border-transparent hover:border-slate-700 transition-all group active:scale-[0.98]">
+                    <div class="flex items-center gap-3">
+                        <img src="https://avatars.githubusercontent.com/u/261951948?v=4" alt="Riley" class="w-10 h-10 rounded-full border border-slate-700 shrink-0">
+                        <span class="font-medium text-sm sm:text-base text-slate-200 group-hover:text-blue-400 transition-colors">RileyDoesCode</span>
+                    </div>
+                    <i data-lucide="external-link" class="w-4 h-4 text-slate-600 group-hover:text-blue-400 shrink-0"></i>
+                </a>
+            </div>
+            
+            <div class="p-3 sm:p-4 bg-slate-950/50 border-t border-slate-800 text-center shrink-0">
+                <p class="text-xs text-slate-500">Want to contribute? Check out our <a href="https://github.com/RileyDoesCode/Prometheus-Project" class="text-blue-400 hover:underline">GitHub</a>.</p>
+            </div>
+        </div>
+    </div>
 
-<div class="mt-6 grid md:grid-cols-3 gap-4">
+    <div id="notificationModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-[60] p-4 transition-opacity duration-300 opacity-0">
+        <div id="notificationContent" class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-[90%] sm:max-w-sm max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300 relative m-auto">
+            <div class="p-6 sm:p-8 flex flex-col items-center text-center">
+                
+                <div class="p-3 bg-orange-500/10 rounded-full border border-orange-500/20 mb-4 shadow-[0_0_15px_rgba(249,115,22,0.2)] shrink-0">
+                    <i data-lucide="flame" class="text-orange-500 w-8 h-8 sm:w-10 sm:h-10"></i>
+                </div>
+                
+                <div class="mb-4">
+                    <h2 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">Prometheus</h2>
+                    <p class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-widest mt-1">Lua Obfuscator</p>
+                </div>
+                
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
+                    Welcome to Prometheus! This Version Is The Reworked Version Of Prometheus and Fully Updated By RileyBeeRBLX, Enjoy Obfuscating!
+                </p>
 
-<div>
-<label class="text-sm text-gray-400">Security Preset</label>
+                <div class="flex items-center justify-center gap-2 w-full mb-6">
+                    <input type="checkbox" id="dontShowAgain" class="w-4 h-4 rounded bg-slate-950 border-slate-700 cursor-pointer">
+                    <label for="dontShowAgain" class="text-xs sm:text-sm text-slate-400 cursor-pointer select-none hover:text-slate-300 transition-colors">
+                        Don't show this again
+                    </label>
+                </div>
 
-<select id="preset"
-class="w-full mt-1 bg-gray-900 border border-gray-700 rounded p-2">
+                <button onclick="dismissNotification()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl border border-blue-500 shadow-lg shadow-blue-500/20 transition-all active:scale-95 focus:ring-2 focus:ring-blue-500/50 outline-none text-sm sm:text-base">
+                    OK!
+                </button>
+            </div>
+        </div>
+    </div>
 
-<option value="Minify">Minify — tiny / fastest</option>
-<option value="Weak">Weak — small / fast</option>
-<option value="Medium" selected>Medium — balanced</option>
-<option value="Strong">Strong — huge / slowest</option>
+    <script>
+        lucide.createIcons();
 
-</select>
-</div>
+        const input = document.getElementById("input");
+        const output = document.getElementById("output");
+        const preset = document.getElementById("preset");
+        const platform = document.getElementById("platform");
+        const btn = document.getElementById("run");
+        const statusText = document.getElementById("statusText");
+        const statusDot = document.getElementById("statusDot");
 
-<div>
-<label class="text-sm text-gray-400">Platform</label>
+        const notifModal = document.getElementById('notificationModal');
+        const notifContent = document.getElementById('notificationContent');
 
-<select id="platform"
-class="w-full mt-1 bg-gray-900 border border-gray-700 rounded p-2">
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('hidePrometheusUpdate')) {
+                notifModal.classList.remove('hidden');
+                notifModal.classList.add('flex');
+                
+                setTimeout(() => {
+                    notifModal.classList.remove('opacity-0');
+                    notifContent.classList.remove('scale-95');
+                    notifContent.classList.add('scale-100');
+                }, 10);
+            }
+        });
 
-<option value="Lua51">Lua 5.1 / Lua 5.4</option>
-<option value="LuaU">LuaU (Roblox)</option>
+        function dismissNotification() {
+            const dontShow = document.getElementById('dontShowAgain').checked;
+            
+            if (dontShow) {
+                localStorage.setItem('hidePrometheusUpdate', 'true');
+            }
 
-</select>
-</div>
+            notifModal.classList.add('opacity-0');
+            notifContent.classList.remove('scale-100');
+            notifContent.classList.add('scale-95');
 
-<div class="flex items-end">
-<button
-id="run"
-onclick="obfuscate()"
-class="w-full bg-blue-600 hover:bg-blue-500 font-semibold p-3 rounded">
+            setTimeout(() => {
+                notifModal.classList.add('hidden');
+                notifModal.classList.remove('flex');
+            }, 300);
+        }
 
-Obfuscate Script
+        function setStatus(text, colorClass, isBlinking = true) {
+            statusText.innerText = text;
+            statusDot.className = `w-2.5 h-2.5 rounded-full ${colorClass} ${isBlinking ? 'blink' : ''} shrink-0`;
+        }
 
-</button>
-</div>
+        async function pasteText() {
+            try {
+                const text = await navigator.clipboard.readText();
+                input.value = text;
+            } catch (err) {
+                alert("Clipboard access denied. Please paste manually.");
+            }
+        }
 
-</div>
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-<div class="mt-4 text-sm text-gray-400" id="status">
-Ready.
-</div>
+            const maxSize = 50 * 1024 * 1024;
+            if (file.size > maxSize) {
+                setStatus("Error: File exceeds 50MB limit!", "bg-red-500", false);
+                event.target.value = '';
+                return;
+            }
 
-</div>
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                input.value = e.target.result;
+                setStatus(`Loaded: ${file.name}`, "bg-green-500", false);
+            };
+            reader.onerror = function() {
+                setStatus("Error: Failed to read file", "bg-red-500", false);
+            };
+            
+            reader.readAsText(file);
+            event.target.value = '';
+        }
 
+        async function obfuscate() {
+            if (!input.value.trim()) {
+                setStatus("Input is empty!", "bg-red-500", false);
+                return;
+            }
 
-<script>
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 sm:w-5 sm:h-5 animate-spin"></i> <span class="text-sm sm:text-base">Processing...</span>`;
+            lucide.createIcons();
+            setStatus("Obfuscating script...", "bg-amber-400");
 
-const input = document.getElementById("input")
-const output = document.getElementById("output")
-const preset = document.getElementById("preset")
-const platform = document.getElementById("platform")
-const btn = document.getElementById("run")
-const status = document.getElementById("status")
+            try {
+                const res = await fetch("/obfuscate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        code: input.value,
+                        preset: preset.value,
+                        platform: platform.value
+                    })
+                });
 
-async function pasteText(){
-try{
-input.value = await navigator.clipboard.readText()
-}catch{
-alert("Clipboard access denied.")
-}
-}
+                const data = await res.json();
 
-async function obfuscate(){
+                if (res.ok) {
+                    const watermark = "-- This file was protected using Prometheus Obfuscator v1.2 [https://prometheus-project.onrender.com]\n";
+                    const finalCode = data.result || "-- Processed successfully.";
+                    
+                    output.value = watermark + finalCode;
+                    setStatus("Obfuscation Complete", "bg-green-500", false);
+                } else {
+                    output.value = data.error || data.details || "-- An error occurred.";
+                    setStatus("Failed to obfuscate", "bg-red-500", false);
+                }
+            } catch (e) {
+                output.value = `-- Connection Error:\n${e.message}`;
+                setStatus("Network Error", "bg-red-500", false);
+            }
 
-if(!input.value.trim()){
-alert("Enter Lua code first.")
-return
-}
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="zap" class="w-4 h-4 sm:w-5 sm:h-5"></i> <span class="text-sm sm:text-base">Obfuscate Script</span>`;
+            lucide.createIcons();
+        }
 
-btn.disabled = true
-btn.innerText = "Processing..."
-status.innerText = "Obfuscating..."
+        function copyText() {
+            if (!output.value) return;
+            navigator.clipboard.writeText(output.value);
+            setStatus("Copied to clipboard!", "bg-blue-500", false);
+            setTimeout(() => setStatus("System Ready", "bg-green-500"), 2000);
+        }
 
-try{
+        function downloadText() {
+            if (!output.value) return;
+            const blob = new Blob([output.value], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "obfuscated.lua";
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
 
-const res = await fetch("/obfuscate",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-code:input.value,
-preset:preset.value,
-platform:platform.value
-})
-})
+        const contributorsModal = document.getElementById("contributorsModal");
+        
+        function openContributors() {
+            contributorsModal.classList.remove("hidden");
+            contributorsModal.classList.add("flex");
+        }
 
-const data = await res.json()
+        function closeContributors() {
+            contributorsModal.classList.add("hidden");
+            contributorsModal.classList.remove("flex");
+        }
 
-if(res.ok){
-output.value = data.result
-status.innerText = "Done."
-}else{
-output.value = data.details || data.error
-status.innerText = "Error."
-}
-
-}catch(e){
-status.innerText = "Network Error"
-output.value = e.message
-}
-
-btn.disabled = false
-btn.innerText = "Obfuscate Script"
-
-}
-
-function copyText(){
-
-if(!output.value) return
-
-navigator.clipboard.writeText(output.value)
-
-status.innerText = "Copied to clipboard."
-
-}
-
-function downloadText(){
-
-if(!output.value) return
-
-const blob = new Blob([output.value],{type:"text/plain"})
-const a = document.createElement("a")
-
-a.href = URL.createObjectURL(blob)
-a.download = "obfuscated.lua"
-
-a.click()
-
-status.innerText = "Downloaded."
-
-}
-
-</script>
-
+        contributorsModal.addEventListener('click', (e) => {
+            if (e.target === contributorsModal) closeContributors();
+        });
+    </script>
 </body>
 </html>
