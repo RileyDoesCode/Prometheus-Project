@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Prometheus Lua Obfuscator</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+<style>
+body{
+font-family:Inter, sans-serif;
+background:#0b0f14;
+}
+
+.code{
+font-family:"JetBrains Mono", monospace;
+}
+</style>
+
+</head>
+
+<body class="text-gray-200">
+
+<div class="max-w-6xl mx-auto p-6">
+
+<h1 class="text-3xl font-semibold mb-6 text-blue-400">
+Prometheus Lua Obfuscator
+</h1>
+
+<div class="grid md:grid-cols-2 gap-6">
+
+<!-- INPUT -->
+<div class="space-y-3">
+
+<div class="flex justify-between items-center">
+<label class="font-medium text-gray-400">Input Lua Script</label>
+
+<button onclick="pasteText()"
+class="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 rounded">
+Paste
+</button>
+</div>
+
+<textarea id="input"
+class="code w-full h-80 p-4 rounded bg-[#0d1117] border border-gray-700 focus:outline-none focus:border-blue-500 text-green-400"></textarea>
+
+</div>
+
+<div class="space-y-3">
+
+<div class="flex justify-between items-center">
+<label class="font-medium text-gray-400">Obfuscated Output</label>
+
+<div class="flex gap-2">
+
+<button onclick="copyText()"
+class="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 rounded">
+Copy
+</button>
+
+<button onclick="downloadText()"
+class="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 rounded">
+Download
+</button>
+
+</div>
+</div>
+
+<textarea id="output"
+readonly
+class="code w-full h-80 p-4 rounded bg-[#0d1117] border border-gray-700 text-yellow-300"></textarea>
+
+</div>
+
+</div>
+
+<div class="mt-6 grid md:grid-cols-3 gap-4">
+
+<div>
+<label class="text-sm text-gray-400">Security Preset</label>
+
+<select id="preset"
+class="w-full mt-1 bg-gray-900 border border-gray-700 rounded p-2">
+
+<option value="Minify">Minify — tiny / fastest</option>
+<option value="Weak">Weak — small / fast</option>
+<option value="Medium" selected>Medium — balanced</option>
+<option value="Strong">Strong — huge / slowest</option>
+
+</select>
+</div>
+
+<div>
+<label class="text-sm text-gray-400">Platform</label>
+
+<select id="platform"
+class="w-full mt-1 bg-gray-900 border border-gray-700 rounded p-2">
+
+<option value="Lua51">Lua 5.1 / Lua 5.4</option>
+<option value="LuaU">LuaU (Roblox)</option>
+
+</select>
+</div>
+
+<div class="flex items-end">
+<button
+id="run"
+onclick="obfuscate()"
+class="w-full bg-blue-600 hover:bg-blue-500 font-semibold p-3 rounded">
+
+Obfuscate Script
+
+</button>
+</div>
+
+</div>
+
+<div class="mt-4 text-sm text-gray-400" id="status">
+Ready.
+</div>
+
+</div>
+
+
+<script>
+
+const input = document.getElementById("input")
+const output = document.getElementById("output")
+const preset = document.getElementById("preset")
+const platform = document.getElementById("platform")
+const btn = document.getElementById("run")
+const status = document.getElementById("status")
+
+async function pasteText(){
+try{
+input.value = await navigator.clipboard.readText()
+}catch{
+alert("Clipboard access denied.")
+}
+}
+
+async function obfuscate(){
+
+if(!input.value.trim()){
+alert("Enter Lua code first.")
+return
+}
+
+btn.disabled = true
+btn.innerText = "Processing..."
+status.innerText = "Obfuscating..."
+
+try{
+
+const res = await fetch("/obfuscate",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+code:input.value,
+preset:preset.value,
+platform:platform.value
+})
+})
+
+const data = await res.json()
+
+if(res.ok){
+output.value = data.result
+status.innerText = "Done."
+}else{
+output.value = data.details || data.error
+status.innerText = "Error."
+}
+
+}catch(e){
+status.innerText = "Network Error"
+output.value = e.message
+}
+
+btn.disabled = false
+btn.innerText = "Obfuscate Script"
+
+}
+
+function copyText(){
+
+if(!output.value) return
+
+navigator.clipboard.writeText(output.value)
+
+status.innerText = "Copied to clipboard."
+
+}
+
+function downloadText(){
+
+if(!output.value) return
+
+const blob = new Blob([output.value],{type:"text/plain"})
+const a = document.createElement("a")
+
+a.href = URL.createObjectURL(blob)
+a.download = "obfuscated.lua"
+
+a.click()
+
+status.innerText = "Downloaded."
+
+}
+
+</script>
+
+</body>
+</html>
